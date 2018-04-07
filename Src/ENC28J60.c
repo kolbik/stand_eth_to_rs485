@@ -75,6 +75,19 @@ extern APP_CONFIG AppConfig;
 
 extern void PrintLog(BYTE *mas, WORD len);
 
+WORD swaps(WORD v)
+{
+	WORD_VAL t;
+	BYTE b;
+
+	t.Val   = v;
+	b       = t.v[1];
+	t.v[1]  = t.v[0];
+	t.v[0]  = b;
+
+	return t.Val;
+}
+
 #define __ENC28J60_C
 
 /** D E F I N I T I O N S ****************************************************/
@@ -491,7 +504,7 @@ WORD MACGetFreeRxSize(void)
  *
  * Note:            None
  *****************************************************************************/
-BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
+BOOL MACGetHeader(MAC_ADDR *mac_src, BYTE* type, MAC_ADDR *mac_dest)
 {
 	ENC_PREAMBLE header;
 	BYTE PacketCount;
@@ -531,7 +544,8 @@ BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
 	   header.StatusVector.bits.ByteCount > 1518u ||
 	   !header.StatusVector.bits.ReceiveOk)
 	{
-		Reset();
+	    const char *str = "Error Reset\r\n";
+	    PrintLog((BYTE *)str, strlen(str));
 	}
 
 	// Save the location where the hardware will write the next packet to
@@ -540,7 +554,9 @@ BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
 	// Return the Ethernet frame's Source MAC address field to the caller
 	// This parameter is useful for replying to requests without requiring an 
 	// ARP cycle.
-    memcpy((void*)remote->v, (void*)header.SourceMACAddr.v, sizeof(*remote));
+    memcpy((void*)mac_src->v, (void*)header.SourceMACAddr.v, sizeof(*mac_src));
+
+    memcpy((void*)mac_dest->v, (void*)header.DestMACAddr.v, sizeof(*mac_dest));
 
 	// Return a simplified version of the EtherType field to the caller
     *type = MAC_UNKNOWN;

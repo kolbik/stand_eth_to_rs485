@@ -119,7 +119,7 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
-
+  StackTask();
   /* USER CODE BEGIN 3 */
 
   }

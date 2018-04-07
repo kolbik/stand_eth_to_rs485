@@ -55,51 +55,36 @@
 #define __MAC_H
 
 
-//#include "ENC28J60.h"
+#include "ENC28J60.h"
 #include "StackTsk.h"
 
-#if !defined(STACK_USE_SLIP)
-	// The MAC_TX_BUFFER_COUNT must be equal to MAX_TCP_SOCKETS + 1
-	// (1 reserved for high priority messages), or else calls to 
-	// TCPPut may fail when multiple TCP sockets have data pending 
-	// in the output buffer that hasn't been ACKed.  Changing this 
-	// value is recommended only if the rammifications of doing so 
-	// are properly understood.  
-	#if defined(NON_MCHP_MAC)
-    	#define MAC_TX_BUFFER_SIZE          (1024ul)
-    	#define MAC_TX_BUFFER_COUNT         (1u)
 
-		#if (MAC_TX_BUFFER_SIZE <= 0 || MAC_TX_BUFFER_SIZE > 1500 )
-			#error Invalid MAC_TX_BUFFER_SIZE value specified.
-		#endif
-	#else
-		#define MAC_TX_BUFFER_SIZE			(1500ul)
+// The MAC_TX_BUFFER_COUNT must be equal to MAX_TCP_SOCKETS + 1
+// (1 reserved for high priority messages), or else calls to
+// TCPPut may fail when multiple TCP sockets have data pending
+// in the output buffer that hasn't been ACKed.  Changing this
+// value is recommended only if the rammifications of doing so
+// are properly understood.
+#if defined(NON_MCHP_MAC)
+	#define MAC_TX_BUFFER_SIZE          (1024ul)
+	#define MAC_TX_BUFFER_COUNT         (1u)
+
+	#if (MAC_TX_BUFFER_SIZE <= 0 || MAC_TX_BUFFER_SIZE > 1500 )
+		#error Invalid MAC_TX_BUFFER_SIZE value specified.
 	#endif
-
-	// A generic structure representing the Ethernet header starting all Ethernet 
-	// frames
-	typedef struct _ETHER_HEADER
-	{
-	    MAC_ADDR        DestMACAddr;
-	    MAC_ADDR        SourceMACAddr;
-	    WORD_VAL        Type;
-	} ETHER_HEADER;
 #else
-/*
- * For SLIP, there can only be one transmit and one receive buffer.
- * Both buffers must fit in one bank.  If bigger buffer is required,
- * you must manually locate tx and rx buffer in different bank
- * or modify your linker script file to support arrays bigger than
- * 256 bytes.
- */
-    #define MAC_TX_BUFFER_SIZE          (250ul)
-    #define MAC_TX_BUFFER_COUNT         (1u)
-
-
-	typedef struct _ETHER_HEADER
-	{
-	} ETHER_HEADER;
+	#define MAC_TX_BUFFER_SIZE			(1500ul)
 #endif
+
+// A generic structure representing the Ethernet header starting all Ethernet
+// frames
+typedef struct _ETHER_HEADER
+{
+	MAC_ADDR        DestMACAddr;
+	MAC_ADDR        SourceMACAddr;
+	WORD_VAL        Type;
+} ETHER_HEADER;
+
 // Rest are Receive Buffers
 
 
@@ -247,7 +232,7 @@ BYTE	GetCLKOUT(void);
 void MACInit(void);
 BOOL MACIsLinked(void);
 
-BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type);
+BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type, MAC_ADDR *mac_dest);
 void MACSetReadPtrInRx(WORD offset);
 WORD MACSetWritePtr(WORD address);
 WORD MACSetReadPtr(WORD address);
