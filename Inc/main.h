@@ -62,7 +62,27 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+#define MY_DEFAULT_MAC_BYTE1            (0x00)
+#define MY_DEFAULT_MAC_BYTE2            (0x04)
+#define MY_DEFAULT_MAC_BYTE3            (0xA3)
+#define MY_DEFAULT_MAC_BYTE4            (0x00)
+#define MY_DEFAULT_MAC_BYTE5            (0x00)
+#define MY_DEFAULT_MAC_BYTE6            (0x00)
 
+#define MY_DEFAULT_IP_ADDR_BYTE1        (192ul)
+#define MY_DEFAULT_IP_ADDR_BYTE2        (168ul)
+#define MY_DEFAULT_IP_ADDR_BYTE3        (100ul)
+#define MY_DEFAULT_IP_ADDR_BYTE4        (61ul)
+
+#define MY_DEFAULT_MASK_BYTE1           (255ul)
+#define MY_DEFAULT_MASK_BYTE2           (255ul)
+#define MY_DEFAULT_MASK_BYTE3           (254ul)
+#define MY_DEFAULT_MASK_BYTE4           (0ul)
+
+#define MY_DEFAULT_GATE_BYTE1           MY_DEFAULT_IP_ADDR_BYTE1
+#define MY_DEFAULT_GATE_BYTE2           MY_DEFAULT_IP_ADDR_BYTE2
+#define MY_DEFAULT_GATE_BYTE3           MY_DEFAULT_IP_ADDR_BYTE3
+#define MY_DEFAULT_GATE_BYTE4           (4ul)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

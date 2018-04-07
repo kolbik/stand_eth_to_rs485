@@ -41,6 +41,7 @@
 
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include <StackTsk.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -50,7 +51,9 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+// This is used by other stack elements.
+// Main application must define this and initialize it with proper values.
+APP_CONFIG AppConfig;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -61,7 +64,8 @@ static void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+static void InitAppConfig(void);
+void PrintLog(BYTE *mas, WORD len);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -100,6 +104,12 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  // Initialize Stack and application related NV variables into AppConfig.
+  InitAppConfig();
+
+  /* Initialize core stack layers (MAC, ARP, TCP, UDP) */
+  StackInit();
 
   /* USER CODE END 2 */
 
@@ -182,11 +192,11 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -222,7 +232,9 @@ static void MX_USART1_UART_Init(void)
   HAL_Delay(200);
 
   const char *str = "Start USART\r\n";
-  HAL_UART_Transmit(&huart1, (uint8_t*)str, strlen(str), 150);
+
+  PrintLog((BYTE *)str, strlen(str));
+  //HAL_UART_Transmit(&huart1, (uint8_t*)str, strlen(str), 150);
 
 }
 
@@ -260,7 +272,35 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void InitAppConfig(void)
+{
+	//
+	AppConfig.MyMACAddr.v[0] = MY_DEFAULT_MAC_BYTE1;
+	AppConfig.MyMACAddr.v[1] = MY_DEFAULT_MAC_BYTE2;
+	AppConfig.MyMACAddr.v[2] = MY_DEFAULT_MAC_BYTE3;
+	AppConfig.MyMACAddr.v[3] = MY_DEFAULT_MAC_BYTE4;
+	AppConfig.MyMACAddr.v[4] = MY_DEFAULT_MAC_BYTE5;
+	AppConfig.MyMACAddr.v[5] = MY_DEFAULT_MAC_BYTE6;
 
+	//AppConfig.MyIPAddr.Val = MY_DEFAULT_IP_ADDR_BYTE1 | MY_DEFAULT_IP_ADDR_BYTE2<<8ul | MY_DEFAULT_IP_ADDR_BYTE3<<16ul | MY_DEFAULT_IP_ADDR_BYTE4<<24ul;
+	AppConfig.MyIPAddr.v[0] = MY_DEFAULT_IP_ADDR_BYTE1;
+	AppConfig.MyIPAddr.v[1] = MY_DEFAULT_IP_ADDR_BYTE2;
+	AppConfig.MyIPAddr.v[2] = MY_DEFAULT_IP_ADDR_BYTE3;
+	AppConfig.MyIPAddr.v[3] = MY_DEFAULT_IP_ADDR_BYTE4;
+
+	//AppConfig.MyMask.Val = MY_DEFAULT_MASK_BYTE1 | MY_DEFAULT_MASK_BYTE2<<8ul | MY_DEFAULT_MASK_BYTE3<<16ul | MY_DEFAULT_MASK_BYTE4<<24ul;
+	AppConfig.MyMask.v[0]= MY_DEFAULT_MASK_BYTE1;
+	AppConfig.MyMask.v[1]= MY_DEFAULT_MASK_BYTE2;
+	AppConfig.MyMask.v[2]= MY_DEFAULT_MASK_BYTE3;
+	AppConfig.MyMask.v[3]= MY_DEFAULT_MASK_BYTE4;
+
+	AppConfig.MyGateway.Val = MY_DEFAULT_GATE_BYTE1 | MY_DEFAULT_GATE_BYTE2<<8ul | MY_DEFAULT_GATE_BYTE3<<16ul | MY_DEFAULT_GATE_BYTE4<<24ul;
+}
+
+void PrintLog(BYTE *mas, WORD len)
+{
+	HAL_UART_Transmit(&huart1, mas, len, 150);
+}
 /* USER CODE END 4 */
 
 /**
