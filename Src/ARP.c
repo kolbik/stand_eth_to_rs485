@@ -62,6 +62,8 @@
 #include "StackTsk.h"
 #include "MAC.h"
 
+extern WORD swaps(WORD v);
+
 extern APP_CONFIG AppConfig;
 
 #define __ARP_C

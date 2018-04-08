@@ -1130,7 +1130,6 @@ BYTE MACGet()
  *****************************************************************************/
 WORD MACGetArray(BYTE *val, WORD len)
 {
-	WORD i;
 	uint8_t tx_data[2];
 	uint8_t rx_data;
     __IO uint32_t tmpreg_ovr;
@@ -1179,7 +1178,7 @@ WORD MACGetArray(BYTE *val, WORD len)
 	// Terminate the burst operation
 	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
 
-	return i;
+	return len;
 }//end MACGetArray
 
 

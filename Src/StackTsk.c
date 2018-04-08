@@ -10,6 +10,7 @@
 #include <ARP.h>
 #include <IP.h>
 #include <ICMP.h>
+#include <UDP.h>
 #include <MAC.h>
 #include <ENC28J60.h>
 #include <stdio.h>
@@ -42,6 +43,12 @@ void MacAdressToStr(const MAC_ADDR *MACAddr)
 void StackInit(void)
 {
 	MACInit();
+
+    ARPInit();
+
+//#if defined(STACK_USE_UDP)
+    UDPInit();
+//#endif
 }
 
 
@@ -95,6 +102,8 @@ void StackTask(void)
 					PrintLog((BYTE *)str, strlen(str));
 				}
 
+				/* tempLocalIP - адресс приемного устройства, т.е. нам или не нам */
+				/* remoteNode - сюда еще добавляем адресс источника */
 				if(!IPGetHeader(&tempLocalIP, &remoteNode, &cIPFrameType, &dataCount))
 					break;
 
@@ -136,7 +145,7 @@ void StackTask(void)
 				{
 					const char *str = "cIPFrameType == IP_PROT_UDP\r\n";
 					PrintLog((BYTE *)str, strlen(str));
-					//UDPProcess(&remoteNode, &tempLocalIP, dataCount);
+					UDPProcess(&remoteNode, &tempLocalIP, dataCount);
 					break;
 				}
 				//#endif

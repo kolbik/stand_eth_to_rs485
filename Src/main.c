@@ -42,6 +42,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <StackTsk.h>
+#include <UDPtoRs485.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -120,6 +121,8 @@ int main(void)
 
   /* USER CODE END WHILE */
   StackTask();
+
+  UdpToRs485Task();
   /* USER CODE BEGIN 3 */
 
   }
