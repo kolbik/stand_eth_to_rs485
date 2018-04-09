@@ -53,7 +53,7 @@
 #include "IP.h"
 
 // Maximum avaialble UDP Sockets
-#define MAX_UDP_SOCKETS     (6ul)
+#define MAX_UDP_SOCKETS     (3ul)
 
 typedef WORD UDP_PORT;
 typedef BYTE UDP_SOCKET;

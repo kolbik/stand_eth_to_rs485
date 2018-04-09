@@ -28,12 +28,12 @@ typedef struct __attribute__((__packed__)) _APP_CONFIG
 	IP_ADDR		MyIPAddr;
 	IP_ADDR		MyMask;
 	IP_ADDR		MyGateway;
-	IP_ADDR		PrimaryDNSServer;
-	IP_ADDR		SecondaryDNSServer;
-	IP_ADDR		DefaultIPAddr;
-	IP_ADDR		DefaultMask;
+	//IP_ADDR		PrimaryDNSServer;
+	//IP_ADDR		SecondaryDNSServer;
+	//IP_ADDR		DefaultIPAddr;
+	//IP_ADDR		DefaultMask;
 	MAC_ADDR	MyMACAddr;
-	BYTE		NetBIOSName[16];
+	//BYTE		NetBIOSName[16];
 	struct
 	{
 		unsigned char : 6;

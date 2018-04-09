@@ -75,6 +75,13 @@ extern APP_CONFIG AppConfig;
 
 extern void PrintLog(BYTE *mas, WORD len);
 
+#define SS_SELECT()		CS_ENC_GPIO_Port->BRR = (uint32_t)CS_ENC_Pin
+//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+
+#define SS_DESELECT()	CS_ENC_GPIO_Port->BSRR = (uint32_t)CS_ENC_Pin
+//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+
+
 WORD swaps(WORD v)
 {
 	WORD_VAL t;
@@ -1090,7 +1097,7 @@ BYTE MACGet()
 	uint8_t tx_data;
 	uint8_t rx_data;
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data = RBM;
 	HAL_SPI_Transmit(&hspi1, &tx_data, 1, 100);
@@ -1101,7 +1108,7 @@ BYTE MACGet()
 
 	Result = rx_data;
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 
 	return Result;
 }//end MACGet
@@ -1135,7 +1142,7 @@ WORD MACGetArray(BYTE *val, WORD len)
     __IO uint32_t tmpreg_ovr;
 
 	// Start the burst operation
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+    SS_SELECT();
 	tx_data[0] = RBM;
 
 	HAL_SPI_Transmit(&hspi1, &tx_data[0], 1, 100);
@@ -1176,7 +1183,7 @@ WORD MACGetArray(BYTE *val, WORD len)
 	};
 #endif
 	// Terminate the burst operation
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 
 	return len;
 }//end MACGetArray
@@ -1204,13 +1211,13 @@ void MACPut(BYTE val)
 {
 	uint8_t tx_data[2];
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data[0] = WBM;		// Send the opcode and constant.
 	tx_data[1] = val;		// Send the byte to be writen.
 	HAL_SPI_Transmit(&hspi1, &tx_data[0], 2, 100);
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 }//end MACPut
 
 
@@ -1238,7 +1245,7 @@ void MACPutArray(BYTE *val, WORD len)
 	uint8_t tx_data;
 
 	// Select the chip and send the proper opcode
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data = WBM;		// Send the Write Buffer Memory opcode
 	HAL_SPI_Transmit(&hspi1, &tx_data, 1, 100);
@@ -1257,7 +1264,7 @@ void MACPutArray(BYTE *val, WORD len)
 	};
 #endif
 	// Terminate the burst operation
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 }//end MACPutArray
 
 
@@ -1285,7 +1292,7 @@ void MACPutROMArray(const BYTE *val, WORD len)
 	uint8_t tx_data;
 
 	// Select the chip and send the proper opcode
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data = WBM;		// Send the Write Buffer Memory opcode
 	HAL_SPI_Transmit(&hspi1, &tx_data, 1, 100);
@@ -1300,7 +1307,7 @@ void MACPutROMArray(const BYTE *val, WORD len)
 	};
 
 	// Terminate the burst operation
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 }//end MACPutROMArray
 
 /******************************************************************************
@@ -1324,10 +1331,10 @@ void MACPutROMArray(const BYTE *val, WORD len)
 static void SendSystemReset(void)
 {
 	uint8_t tx_data;
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 	tx_data = SRESET;
 	HAL_SPI_Transmit(&hspi1, &tx_data, 1, 100);
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 }//end SendSystemReset
 
 
@@ -1361,7 +1368,7 @@ static REG ReadETHReg(BYTE Address)
 	REG r;
 
 	// Select the chip and send the Read Control Register opcode/address
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data = RCR | Address;
 	HAL_SPI_Transmit(&hspi1, &tx_data, 1, 100);
@@ -1371,7 +1378,7 @@ static REG ReadETHReg(BYTE Address)
 
 	r.Val = rx_data;
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 
 	return r;
 }//end ReadETHReg
@@ -1387,8 +1394,7 @@ static REG ReadETHReg(BYTE Address)
     __IO uint32_t tmpreg_ovr;
 
 	// Select the chip and send the Read Control Register opcode/address
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
-	CS_ENC_GPIO_Port->BRR = (uint32_t)CS_ENC_Pin;
+    SS_SELECT();
 
 	tx_data[0] = RCR | Address;
 	tx_data[1] = 0;
@@ -1425,8 +1431,7 @@ static REG ReadETHReg(BYTE Address)
 	r.Val = tmpreg_ovr; //rx_data[1];
     tmpreg_ovr = SPI1->DR;
     tmpreg_ovr = SPI1->SR;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
-	CS_ENC_GPIO_Port->BSRR = (uint32_t)CS_ENC_Pin;
+    SS_DESELECT();
 
 	return r;
 }//end ReadETHReg
@@ -1462,7 +1467,7 @@ static REG ReadMACReg(BYTE Address)
 
 	REG r;
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data = RCR | Address;	// Send the Read Control Register opcode and
 	HAL_SPI_Transmit(&hspi1, &tx_data, 1, 100);
@@ -1476,7 +1481,7 @@ static REG ReadMACReg(BYTE Address)
 
 	r.Val = rx_data;
 
-	HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+	SS_DESELECT();
 
 	return r;
 }//end ReadMACReg
@@ -1555,8 +1560,7 @@ static void WriteReg(BYTE Address, BYTE Data)
 {		
 	uint8_t tx_data[2];
 
-	CS_ENC_GPIO_Port->BRR = (uint32_t)CS_ENC_Pin;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data[0] = WCR | Address;		// Send the opcode and address.
 	tx_data[1] = Data;				// Send the byte to be writen.
@@ -1578,8 +1582,7 @@ static void WriteReg(BYTE Address, BYTE Data)
     tmpreg_ovr = SPI1->DR;
     tmpreg_ovr = SPI1->SR;
 
-	CS_ENC_GPIO_Port->BSRR = (uint32_t)CS_ENC_Pin;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+    SS_DESELECT();
 }//end WriteReg
 
 
@@ -1609,8 +1612,7 @@ static void BFCReg(BYTE Address, BYTE Data)
 {
 	uint8_t tx_data[2];
 
-	CS_ENC_GPIO_Port->BRR = (uint32_t)CS_ENC_Pin;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data[0] = BFC | Address;		// Send the opcode and address.
 	tx_data[1] = Data;				// Send the byte to be writen.
@@ -1632,8 +1634,7 @@ static void BFCReg(BYTE Address, BYTE Data)
     tmpreg_ovr = SPI1->DR;
     tmpreg_ovr = SPI1->SR;
 
-	CS_ENC_GPIO_Port->BSRR = (uint32_t)CS_ENC_Pin;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+    SS_DESELECT();
 }//end BFCReg
 
 
@@ -1663,8 +1664,7 @@ static void BFSReg(BYTE Address, BYTE Data)
 {
 	uint8_t tx_data[2];
 
-	CS_ENC_GPIO_Port->BRR = (uint32_t)CS_ENC_Pin;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_RESET);
+	SS_SELECT();
 
 	tx_data[0] = BFS | Address;		// Send the opcode and address.
 	tx_data[1] = Data;				// Send the byte to be writen.
@@ -1686,8 +1686,7 @@ static void BFSReg(BYTE Address, BYTE Data)
     tmpreg_ovr = SPI1->DR;
     tmpreg_ovr = SPI1->SR;
 
-	CS_ENC_GPIO_Port->BSRR = (uint32_t)CS_ENC_Pin;
-	//HAL_GPIO_WritePin(CS_ENC_GPIO_Port, CS_ENC_Pin, GPIO_PIN_SET);
+    SS_DESELECT();
 }//end BFSReg
 
 
